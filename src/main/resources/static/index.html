@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>УНП Форма</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 500px;
+            background: white;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            padding: 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #6999cd;
+            color: white;
+            border: 2px #0056b3 solid;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .output-group {
+            margin-top: 20px;
+        }
+
+        .output-group div {
+            margin-bottom: 10px;
+        }
+
+        .output-group div span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <form id="unpForm">
+        <div class="form-group">
+            <label for="unp">УНП*</label>
+            <input type="text" id="unp" name="unp" required>
+        </div>
+        <button type="submit">Заполнить</button>
+    </form>
+
+    <div class="output-group">
+        <div><span>Полное наименование плательщика:</span> <span id="payerName">-</span></div>
+        <div><span>Адрес:</span> <span id="address">-</span></div>
+        <div><span>Дата поставки на учет:</span> <span id="registrationDate">-</span></div>
+        <div><span>Статус:</span> <span id="status">-</span></div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('unpForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const unp = document.getElementById('unp').value;
+
+        //100582333
+        fetch(`http://grp.nalog.gov.by/api/grp-public/data?unp=${unp}&charset=UTF-8&type=json`)
+            .then(response => {
+                if(response.status === 200){
+                    return response.json()
+                } else {
+                    document.getElementById('payerName').textContent = '-';
+                    document.getElementById('address').textContent = '-';
+                    document.getElementById('registrationDate').textContent = '-';
+                    document.getElementById('status').textContent = '-';
+                }
+            })
+            .then(data => {
+                document.getElementById('payerName').textContent = data.row.vnaimp;
+                document.getElementById('address').textContent = data.row.vpadres;
+                document.getElementById('registrationDate').textContent = data.row.dreg;
+                document.getElementById('status').textContent = data.row.ckodsost;
+            })
+    });
+</script>
+</body>
+</html>
